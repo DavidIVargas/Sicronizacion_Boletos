@@ -4,37 +4,41 @@
  */
 package modelo;
 
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import vista.InterfazGrafica;
 
 /**
  *
  * @author davidvargas
  */
-public class Usuario{
-    private int id;
+public class Usuario implements Runnable {
+    private Evento evento;
     private String nombre;
+    private Random random = new Random();
+    private InterfazGrafica interfaz;
 
-    public Usuario(int id, String nombre) {
-        this.id = id;
+    public Usuario(Evento evento, String nombre, InterfazGrafica interfaz) {
+        this.evento = evento;
         this.nombre = nombre;
+        this.interfaz = interfaz;
     }
 
-    public int getId() {
-        return id;
+    @Override
+    public void run() {
+        for (int i = 0; i < 20; i++) {
+            int entradasAReservar = random.nextInt(5) + 1;
+            boolean exito;
+            synchronized (evento) {
+                exito = evento.reservarEntradas(entradasAReservar);
+                interfaz.actualizarEstado(nombre, exito, entradasAReservar, evento.getEntradasDisponibles());
+            }
+            try {
+                Thread.sleep(100);  // Simula el tiempo de espera entre intentos de reserva
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-    
-    
 }
